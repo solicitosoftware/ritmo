@@ -7,7 +7,15 @@ export const dynamic = 'force-dynamic';
 
 async function getCategories() {
   try {
-    const categories = await prisma.productCategory.findMany();
+    const categories = await prisma.productCategory.findMany({
+      include: {
+        _count: {
+          select: {
+            products: true
+          }
+        }
+      }
+    });
     return categories;
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -26,6 +34,12 @@ export default async function CategoriesPage() {
     {
       header: 'Description',
       accessor: 'description' as const,
+      render: (category: any) => category.description || '-',
+    },
+    {
+      header: 'Products',
+      accessor: '_count' as const,
+      render: (category: any) => category._count.products,
     },
   ];
 

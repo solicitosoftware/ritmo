@@ -41,19 +41,19 @@ export function FormField({
 
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-700">{label}</label>
+      <label className="block text-sm font-medium text-text-base font-inter mb-1">{label}</label>
       <div className="mt-1">{children}</div>
-      {errorMessage && <p className="mt-1 text-sm text-red-600">{errorMessage}</p>}
+      {errorMessage && <p className="mt-1.5 text-sm text-error">{errorMessage}</p>}
     </div>
   );
 }
 
 export const Input = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTMLInputElement>>(
-  function Input({ type = 'text', ...props }, ref) {
+  function Input({ type = 'text', className = '', ...props }, ref) {
     return (
       <input
         type={type}
-        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        className={`block w-full rounded-lg bg-surface border-border shadow-sm focus:border-primary focus:ring-primary text-text-base placeholder-text-muted sm:text-sm font-inter transition-colors ${className}`}
         ref={ref}
         {...props}
       />
@@ -62,10 +62,10 @@ export const Input = forwardRef<HTMLInputElement, React.InputHTMLAttributes<HTML
 );
 
 export const TextArea = forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttributes<HTMLTextAreaElement>>(
-  function TextArea(props, ref) {
+  function TextArea({ className = '', ...props }, ref) {
     return (
       <textarea
-        className="block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+        className={`block w-full rounded-lg bg-surface border-border shadow-sm focus:border-primary focus:ring-primary text-text-base placeholder-text-muted sm:text-sm font-inter transition-colors ${className}`}
         rows={3}
         ref={ref}
         {...props}
@@ -77,20 +77,21 @@ export const TextArea = forwardRef<HTMLTextAreaElement, React.TextareaHTMLAttrib
 export function Button({
   type = 'button',
   variant = 'primary',
+  className = '',
   ...props
 }: React.ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: 'primary' | 'secondary' | 'danger';
 }) {
   const variants = {
-    primary: 'bg-indigo-600 hover:bg-indigo-700 text-white',
-    secondary: 'bg-gray-200 hover:bg-gray-300 text-gray-900',
-    danger: 'bg-red-600 hover:bg-red-700 text-white',
+    primary: 'bg-primary hover:bg-primary/90 active:bg-primary/80 text-text-inverse',
+    secondary: 'bg-muted hover:bg-muted/90 active:bg-muted/80 text-text-base',
+    danger: 'bg-error hover:bg-error/90 active:bg-error/80 text-text-inverse',
   };
 
   return (
     <button
       type={type}
-      className={`inline-flex justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 ${variants[variant]}`}
+      className={`inline-flex items-center justify-center px-4 py-2 rounded-lg border border-transparent text-sm font-medium shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${variants[variant]} ${className}`}
       {...props}
     />
   );
