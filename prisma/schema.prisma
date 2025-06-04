@@ -57,3 +57,29 @@ model VerificationToken {
 
   @@unique([identifier, token])
 }
+
+model ProductCategory {
+  id          String    @id @default(cuid())
+  name        String
+  description String?
+  slug        String    @unique
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+}
+
+model Product {
+  id          String          @id @default(cuid())
+  name        String
+  description String?
+  price       Decimal         @db.Decimal(10, 2)
+  stock       Int            @default(0)
+  slug        String          @unique
+  images      String[]
+  categoryId  String
+  category    ProductCategory @relation(fields: [categoryId], references: [id])
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  @@index([categoryId])
+}
