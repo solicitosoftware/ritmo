@@ -1,24 +1,23 @@
-'use client'
+"use client";
 
-import React from 'react'
-import { useSession } from 'next-auth/react'
-import { redirect } from 'next/navigation'
-import Image from "next/image";
+import React from "react";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 export default function Home() {
-  const { status } = useSession()
+  const { status } = useSession();
 
-  if (status === 'loading') {
+  if (status === "loading") {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-center">Loading...</div>
       </div>
-    )
+    );
   }
 
-  if (status === 'authenticated') {
-    redirect('/dashboard')
+  if (status === "authenticated") {
+    redirect("/dashboard");
   }
 
-  redirect('/auth/signin')
+  redirect("/auth/signin");
 }

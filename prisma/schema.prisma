@@ -10,7 +10,11 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  // conect to your database local
   url      = env("DATABASE_URL")
+  // conect to your database remote
+  // url       = env("POSTGRES_PRISMA_URL")
+  // directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
 model Account {
@@ -73,7 +77,7 @@ model Product {
   name        String
   description String?
   price       Decimal         @db.Decimal(10, 2)
-  stock       Int            @default(0)
+  stock       Int             @default(0)
   slug        String          @unique
   images      String[]
   categoryId  String

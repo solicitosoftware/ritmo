@@ -1,17 +1,17 @@
-'use client'
+"use client";
 
-import { useSession } from 'next-auth/react'
-import { redirect } from 'next/navigation'
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 export default function DashboardPage() {
-  const { data: session, status } = useSession()
+  const { data: session, status } = useSession();
 
-  if (status === 'loading') {
-    return <div>Loading...</div>
+  if (status === "loading") {
+    return <div>Loading...</div>;
   }
 
-  if (status === 'unauthenticated') {
-    redirect('/auth/signin')
+  if (status === "unauthenticated") {
+    redirect("/auth/signin");
   }
 
   return (
@@ -22,7 +22,9 @@ export default function DashboardPage() {
           <div className="max-w-md mx-auto">
             <div className="divide-y divide-gray-200">
               <div className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
-                <h1 className="text-2xl font-bold mb-8">Welcome to your Dashboard</h1>
+                <h1 className="text-2xl font-bold mb-8">
+                  Welcome to your Dashboard
+                </h1>
                 <p className="mb-4">
                   You are signed in as: <strong>{session?.user?.name}</strong>
                 </p>
@@ -35,5 +37,5 @@ export default function DashboardPage() {
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}

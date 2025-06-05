@@ -1,35 +1,36 @@
-'use client'
+"use client";
 
-import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 export default function SignInPage() {
-  const router = useRouter()
-  const [error, setError] = useState<string | null>(null)
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const email = formData.get('email') as string
-    const password = formData.get('password') as string
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
     try {
-      const result = await signIn('credentials', {
+      const result = await signIn("credentials", {
         email,
         password,
         redirect: false,
-      })
+      });
 
       if (result?.error) {
-        setError('Invalid credentials')
+        setError("Invalid credentials");
       } else {
-        router.push('/dashboard')
+        router.push("/dashboard");
       }
     } catch (error) {
-      setError('An error occurred during sign in')
+      console.error("Sign in error:", error);
+      setError("An error occurred during sign in");
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
@@ -97,7 +98,7 @@ export default function SignInPage() {
 
           <div className="mt-6">
             <button
-              onClick={() => signIn('github')}
+              onClick={() => signIn("github")}
               className="w-full flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
             >
               GitHub
@@ -106,5 +107,5 @@ export default function SignInPage() {
         </div>
       </div>
     </div>
-  )
-} 
+  );
+}
