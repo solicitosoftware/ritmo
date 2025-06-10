@@ -19,5 +19,5 @@ export default function Home() {
     redirect("/dashboard");
   }
 
-  redirect("/auth/signin");
+  redirect("/dashboard");
 }
