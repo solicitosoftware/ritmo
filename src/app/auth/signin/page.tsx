@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { supabase } from '@/lib/supabase'
+import { createClientSupabaseClient } from '@/lib/auth.client'
 
 export default function SignIn() {
   const router = useRouter()
@@ -17,6 +17,7 @@ export default function SignIn() {
     setError(null)
 
     try {
+      const supabase = createClientSupabaseClient()
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -35,6 +36,7 @@ export default function SignIn() {
 
   const handleGithubSignIn = async () => {
     try {
+      const supabase = createClientSupabaseClient()
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'github',
         options: {

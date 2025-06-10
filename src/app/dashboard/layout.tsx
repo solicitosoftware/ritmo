@@ -1,13 +1,15 @@
-"use client";
-
-import { AppProvider } from "../contexts/AppContext";
-import DashboardLayout from "./DashboardLayout";
 import { ReactNode } from "react";
+import { requireAuth } from "@/lib/auth.server";
+import ClientDashboardWrapper from "./ClientDashboardWrapper";
 
-export default function Layout({ children }: { children: ReactNode }) {
+// This is a Server Component
+export default async function RootLayout({ children }: { children: ReactNode }) {
+  // This will redirect to /auth/signin if there's no session
+  const session = await requireAuth();
+
   return (
-    <AppProvider>
-      <DashboardLayout>{children}</DashboardLayout>
-    </AppProvider>
+    <ClientDashboardWrapper session={session}>
+      {children}
+    </ClientDashboardWrapper>
   );
 }
