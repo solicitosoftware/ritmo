@@ -1,289 +1,118 @@
 "use client";
 
-import type React from "react";
-import { ReactNode, useState } from "react";
-import {
-  Sun,
-  Moon,
-  Users,
-  Layers,
-  ShoppingBag,
-  Home,
-  Settings,
-  HelpCircle,
-  ChevronLeft,
-  ChevronRight,
-  LogOut,
-} from "lucide-react";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { signOut } from "next-auth/react";
-import { useApp } from "../contexts/AppContext";
-import NavItem from "../../components/sidebar/NavItem";
-import UserInfo from "@/components/userInfo/UserInfo";
-import NotificationDropdown from "@/components/notifications/NotificationDropdown";
+import { ReactNode, useState } from 'react'
+import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { LuLayoutDashboard, LuPackage, LuTags, LuMenu, LuLogOut } from 'react-icons/lu'
+import { createClientComponentClient } from '@supabase/auth-helpers-nextjs'
 
 interface DashboardLayoutProps {
-  children: ReactNode;
+  children: ReactNode
 }
 
-const DashboardLayout = ({ children }: DashboardLayoutProps) => {
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const { theme, toggleTheme, mounted } = useApp();
-  const pathname = usePathname();
+const menuItems = [
+  {
+    title: 'Dashboard',
+    href: '/dashboard',
+    icon: LuLayoutDashboard,
+  },
+  {
+    title: 'Products',
+    href: '/dashboard/products',
+    icon: LuPackage,
+  },
+  {
+    title: 'Categories',
+    href: '/dashboard/categories',
+    icon: LuTags,
+  },
+]
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
+export default function DashboardLayout({ children }: DashboardLayoutProps) {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true)
+  const router = useRouter()
+  const supabase = createClientComponentClient()
 
-  // Durante SSR o antes de la hidratación, renderizar un layout mínimo
-  if (!mounted) {
-    return (
-      <div className="min-h-screen bg-gray-50">
-        <div className="flex h-screen">
-          <div className="flex-1 p-4">{children}</div>
-        </div>
-      </div>
-    );
+  const handleSignOut = async () => {
+    await supabase.auth.signOut()
+    router.push('/auth/signin')
   }
 
-  const isActive = (path: string) => {
-    return pathname === path || pathname.startsWith(`${path}/`);
-  };
-
   return (
-    <div
-      className={`flex h-screen ${
-        theme === "light" ? "bg-gray-50" : "bg-gray-900"
-      }`}
-    >
+    <div className="flex h-screen bg-background">
       {/* Sidebar */}
-      <div className="relative">
-        <aside
-          className={`sidebar-container ${sidebarOpen ? "w-64" : "w-16"} ${
-            theme === "light" ? "sidebar-light" : "sidebar-dark"
-          }`}
-        >
-          <div
-            className={`sidebar-header ${sidebarOpen ? "px-4" : "px-2"} ${
-              theme === "light" ? "sidebar-header-light" : "sidebar-header-dark"
-            }`}
-          >
-            {sidebarOpen ? (
-              <div className="text-3xl font-bold text-yellow-400 neon-text">
-                RITMO
-              </div>
-            ) : (
-              <div className="user-avatar">R</div>
-            )}
-          </div>
-
-          <nav className="sidebar-nav">
-            <ul className="sidebar-nav-list">
-              <NavItem
-                icon={<Home size={20} />}
-                label="Dashboard"
-                active={isActive("/dashboard")}
-                collapsed={!sidebarOpen}
-                href="/dashboard"
-              />
-              <NavItem
-                icon={<Users size={20} />}
-                label="Users"
-                active={isActive("/dashboard/users")}
-                collapsed={!sidebarOpen}
-                subItems={[
-                  { label: "All Users", href: "/dashboard/users" },
-                  { label: "Add User", href: "/dashboard/users/new" },
-                  { label: "Roles", href: "/dashboard/users/roles" },
-                ]}
-              />
-              <NavItem
-                icon={<Layers size={20} />}
-                label="Categories"
-                active={isActive("/dashboard/categories")}
-                collapsed={!sidebarOpen}
-                subItems={[
-                  { label: "All Categories", href: "/dashboard/categories" },
-                  { label: "Add Category", href: "/dashboard/categories/new" },
-                  { label: "Manage", href: "/dashboard/categories/manage" },
-                ]}
-              />
-              <NavItem
-                icon={<ShoppingBag size={20} />}
-                label="Products"
-                active={isActive("/dashboard/products")}
-                collapsed={!sidebarOpen}
-                subItems={[
-                  { label: "All Products", href: "/dashboard/products" },
-                  { label: "Add Product", href: "/dashboard/products/new" },
-                  { label: "Inventory", href: "/dashboard/products/inventory" },
-                  {
-                    label: "Categories",
-                    href: "/dashboard/products/categories",
-                  },
-                ]}
-              />
-            </ul>
-
-            <div
-              className={`sidebar-divider ${
-                theme === "light"
-                  ? "sidebar-divider-light"
-                  : "sidebar-divider-dark"
-              }`}
-            >
-              <ul className="sidebar-nav-list">
-                <NavItem
-                  icon={<Settings size={20} />}
-                  label="Settings"
-                  active={isActive("/dashboard/settings")}
-                  collapsed={!sidebarOpen}
-                  href="/dashboard/settings"
-                />
-                <NavItem
-                  icon={<HelpCircle size={20} />}
-                  label="Help"
-                  active={false}
-                  collapsed={!sidebarOpen}
-                  href="/dashboard/help"
-                />
-                <li className="relative group">
-                  <button
-                    onClick={() => signOut({ callbackUrl: "/login" })}
-                    className={`nav-item-button ${
-                      theme === "light"
-                        ? "nav-item-inactive-light"
-                        : "nav-item-inactive-dark"
-                    }`}
-                  >
-                    <div className="nav-item-content">
-                      <span className="nav-item-icon">
-                        <LogOut size={20} />
-                      </span>
-                      <span
-                        className={`nav-item-label ${
-                          !sidebarOpen ? "opacity-0 w-0" : "opacity-100"
-                        }`}
-                      >
-                        Sign Out
-                      </span>
-                    </div>
-                  </button>
-                </li>
-              </ul>
-            </div>
-          </nav>
-        </aside>
-
-        <button
-          type="button"
-          onClick={toggleSidebar}
-          className={`sidebar-toggle ${
-            sidebarOpen ? "left-60 top-[4.3rem]" : "left-12 top-[4.3rem]"
-          } ${
-            theme === "light" ? "sidebar-toggle-light" : "sidebar-toggle-dark"
-          }`}
-          aria-label="Toggle sidebar"
-        >
-          {sidebarOpen ? <ChevronLeft size={16} /> : <ChevronRight size={16} />}
-        </button>
-      </div>
-
-      {/* Main Content Area */}
-      <div
-        className={`flex flex-col flex-1 transition-all duration-300 ease-in-out ${
-          sidebarOpen ? "md:ml-64" : "ml-16"
+      <aside
+        className={`fixed md:relative z-20 h-full bg-surface shadow-md transition-all duration-300 ease-in-out ${
+          isSidebarOpen ? 'w-64' : 'w-0 md:w-16 overflow-hidden'
         }`}
       >
-        {/* Navbar */}
-        <header
-          className={`navbar-container ${
-            theme === "light" ? "navbar-light" : "navbar-dark"
+        <div
+          className={`p-6 border-b border-border flex items-center justify-between ${
+            isSidebarOpen ? '' : 'px-4'
           }`}
         >
-          <div className="navbar-content">
-            <div className="navbar-inner">
-              <div className="flex items-center">
-                <div className="navbar-title">
-                  <h1
-                    className={`navbar-title-text ${
-                      theme === "light"
-                        ? "navbar-title-light"
-                        : "navbar-title-dark"
-                    }`}
-                  >
-                    Dashboard
-                  </h1>
-                </div>
-              </div>
-
-              <div className="navbar-actions">
-                <button
-                  onClick={toggleTheme}
-                  className={`theme-toggle ${
-                    theme === "light"
-                      ? "theme-toggle-light"
-                      : "theme-toggle-dark"
-                  }`}
-                  aria-label="Toggle theme"
-                >
-                  {theme === "light" ? <Moon size={20} /> : <Sun size={20} />}
-                </button>
-
-                <NotificationDropdown />
-                <UserInfo />
-              </div>
-            </div>
-          </div>
-        </header>
-
-        {/* Main Content */}
-        <main
-          className={`main-content ${
-            theme === "light" ? "main-content-light" : "main-content-dark"
-          }`}
-        >
-          {children}
-        </main>
-
-        {/* Footer */}
-        <footer
-          className={`footer-container ${
-            theme === "light" ? "footer-light" : "footer-dark"
-          }`}
-        >
-          <div className="footer-content">
-            <p
-              className={`footer-text ${
-                theme === "light" ? "footer-text-light" : "footer-text-dark"
-              }`}
-            >
-              © 2024 Your Company. All rights reserved.
-            </p>
-            <div className="footer-links">
+          <h2
+            className={`text-xl font-semibold text-text-base font-poppins transition-opacity duration-200 ${
+              isSidebarOpen ? 'opacity-100' : 'opacity-0 md:hidden'
+            }`}
+          >
+            Admin Panel
+          </h2>
+        </div>
+        <nav className="p-4 space-y-1">
+          {menuItems.map((item) => {
+            const Icon = item.icon
+            return (
               <Link
-                href="/dashboard/privacy"
-                className={`footer-link ${
-                  theme === "light" ? "footer-link-light" : "footer-link-dark"
+                key={item.href}
+                href={item.href}
+                className={`flex items-center px-4 py-2.5 text-text-muted rounded-lg hover:bg-muted hover:text-primary transition-colors font-inter ${
+                  isSidebarOpen ? '' : 'justify-center'
                 }`}
+                title={!isSidebarOpen ? item.title : undefined}
               >
-                Privacy Policy
+                <Icon className="w-5 h-5 min-w-[1.25rem]" />
+                {isSidebarOpen && (
+                  <span className="ml-3 font-medium">{item.title}</span>
+                )}
               </Link>
-              <Link
-                href="/dashboard/terms"
-                className={`footer-link ${
-                  theme === "light" ? "footer-link-light" : "footer-link-dark"
-                }`}
-              >
-                Terms of Service
-              </Link>
-            </div>
-          </div>
-        </footer>
-      </div>
+            )
+          })}
+          <button
+            onClick={handleSignOut}
+            className={`flex items-center w-full px-4 py-2.5 text-text-muted rounded-lg hover:bg-muted hover:text-red-500 transition-colors font-inter ${
+              isSidebarOpen ? '' : 'justify-center'
+            }`}
+          >
+            <LuLogOut className="w-5 h-5 min-w-[1.25rem]" />
+            {isSidebarOpen && (
+              <span className="ml-3 font-medium">Sign Out</span>
+            )}
+          </button>
+        </nav>
+      </aside>
+
+      {/* Main Content */}
+      <main className="flex-1 overflow-auto">
+        <div className="sticky top-0 z-10 bg-background border-b border-border p-4">
+          <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-2 rounded-lg hover:bg-muted transition-colors"
+            aria-label={isSidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+          >
+            <LuMenu className="w-6 h-6" />
+          </button>
+        </div>
+        <div className="p-8 max-w-7xl mx-auto">{children}</div>
+      </main>
+
+      {/* Mobile Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-10 md:hidden"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
     </div>
-  );
-};
-
-export default DashboardLayout;
+  )
+}

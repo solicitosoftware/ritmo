@@ -5,9 +5,10 @@ import {
   useContext,
   useState,
   useEffect,
-  useRef,
   ReactNode,
 } from "react";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import type { User } from "@supabase/supabase-js";
 import type { Notification } from "../types/notification";
 
 type Theme = "light" | "dark";
@@ -17,6 +18,7 @@ interface AppContextType {
   theme: Theme;
   toggleTheme: () => void;
   mounted: boolean;
+  user: User | null;
 
   // Notifications
   notifications: Notification[];
@@ -75,22 +77,29 @@ const mockNotifications: Notification[] = [
 ];
 
 export const AppProvider = ({ children }: AppProviderProps) => {
-  // Theme state
   const [theme, setTheme] = useState<Theme>("light");
   const [mounted, setMounted] = useState(false);
-  const initialized = useRef(false);
+  const [user, setUser] = useState<User | null>(null);
+  const supabase = createClientComponentClient();
 
-  // Notifications state
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-
-  // Initialize app state
   useEffect(() => {
-    if (initialized.current) return;
-    initialized.current = true;
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+    };
+    getUser();
 
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
+
+  useEffect(() => {
     setMounted(true);
-
-    // Initialize theme
     const savedTheme = localStorage.getItem("theme") as Theme;
     if (savedTheme) {
       setTheme(savedTheme);
@@ -98,8 +107,27 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     } else {
       document.body.className = theme;
     }
+  }, []);
 
-    // Initialize notifications
+  useEffect(() => {
+    if (mounted) {
+      localStorage.setItem("theme", theme);
+      document.body.className = theme;
+    }
+  }, [theme, mounted]);
+
+  // Theme functions
+  const toggleTheme = () => {
+    const newTheme = theme === "light" ? "dark" : "light";
+    setTheme(newTheme);
+    localStorage.setItem("theme", newTheme);
+  };
+
+  // Notifications state
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+
+  // Initialize notifications
+  useEffect(() => {
     const savedNotifications = localStorage.getItem("notifications");
     if (savedNotifications) {
       try {
@@ -124,25 +152,12 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     }
   }, []);
 
-  // Update theme
-  useEffect(() => {
-    if (mounted) {
-      localStorage.setItem("theme", theme);
-      document.body.className = theme;
-    }
-  }, [theme, mounted]);
-
   // Update notifications in localStorage
   useEffect(() => {
     if (mounted) {
       localStorage.setItem("notifications", JSON.stringify(notifications));
     }
   }, [notifications, mounted]);
-
-  // Theme functions
-  const toggleTheme = () => {
-    setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
-  };
 
   // Notification functions
   const unreadCount = notifications.filter((n) => !n.read).length;
@@ -189,6 +204,7 @@ export const AppProvider = ({ children }: AppProviderProps) => {
     theme,
     toggleTheme,
     mounted,
+    user,
 
     // Notifications
     notifications,
